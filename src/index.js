@@ -1,14 +1,15 @@
 const express = require('express');
-var bodyParser = require('body-parser');
-
+const bodyParser = require('body-parser');
+const multer = require('multer')
 const route = require("./routes/routes");
-
+const mongoose = require('mongoose')
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(multer().any()) 
 
-const mongoose = require('mongoose')
+
 
 mongoose.connect("mongodb+srv://sumandev:aBosU15RXTGZYkKq@cluster0.4du2i.mongodb.net/group34Database?retryWrites=true&w=majority", {useNewUrlParser: true})
 .then(() => console.log('mongodb running on 27017'))
