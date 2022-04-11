@@ -1,21 +1,91 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema( {
-    firstName: String,
-    lastName: String,
-    mobile: {
+const userSchema = new mongoose.Schema({
+    fname:{
         type: String,
-
         required: true
     },
-    emailId: String,
-    password: String,
-    gender: {
+    lname:{
         type: String,
-        enum: ["male", "female", "other"]
+        required: true
     },
-    age: Number,
-    posts: {type: [], deafult: []}
-}, { timestamps: true });
+    email:{
+        type: String,
+        required: true,
+        unique: true
+    },
+    password:{
+        type: String, 
+        required: true,
+        trim : true
+    },
+    profileImage:{
+        type: String,
+        required: true
+    },
+    phone:{
+        type: String,
+        required: true
+    },
+    address:{
+        shipping: {
+            street:{
+            type: String,
+        required: true
+        },
+        city:{
+            type: String,
+        required: true
+        },
+        pincode:{
+            type: Number,
+            required: true
+        }
+    },
+    billing:{
+        street:{
+            type: String,
+        required: true
+        },
+        city:{
+            type: String,
+        required: true
+        },
+        pincode:{
+            type: Number,
+            required: true
+        }
+    }
+    }
+}, {timestamps: true})
 
-module.exports = mongoose.model('User', userSchema)
+module.exports = mongoose.model('user', userSchema)
+
+
+
+
+
+
+// User Model
+// { 
+//   fname: {string, mandatory},
+//   lname: {string, mandatory},
+//   email: {string, mandatory, valid email, unique},
+//   profileImage: {string, mandatory}, // s3 link
+//   phone: {string, mandatory, unique, valid Indian mobile number}, 
+//   password: {string, mandatory, minLen 8, maxLen 15}, // encrypted password
+//   address: {
+//     shipping: {
+//       street: {string, mandatory},
+//       city: {string, mandatory},
+//       pincode: {number, mandatory}
+//     },
+//     billing: {
+//       street: {string, mandatory},
+//       city: {string, mandatory},
+//       pincode: {number, mandatory}
+//     }
+//   },
+//   createdAt: {timestamp},
+//   updatedAt: {timestamp}
+// }
