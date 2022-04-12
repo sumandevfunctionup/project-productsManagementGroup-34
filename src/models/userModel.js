@@ -1,78 +1,76 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-    fname:{
-        type: String,
-        required: true
+const userSchema = new mongoose.Schema(
+  {
+    fname: {
+      type: String,
+      required: true,
     },
-    lname:{
-        type: String,
-        required: true
+    lname: {
+      type: String,
+      required: true,
     },
-    email:{
-        type: String,
-        required: true,
-        unique: true
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    password:{
-        type: String, 
-        required: true,
-        trim : true
+    password: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    profileImage:{
-        type: String,
-        required: true
+    profileImage: {
+      type: String,
+      required: true,
     },
-    phone:{
-        type: String,
-        required: true
+    phone: {
+      type: String,
+      required: true,
     },
-    address:{
-        shipping: {
-            street:{
-            type: String,
-        required: true
+    address: {
+      shipping: {
+        street: {
+          type: String,
+          required: true,
         },
-        city:{
-            type: String,
-        required: true
+        city: {
+          type: String,
+          required: true,
         },
-        pincode:{
-            type: Number,
-            required: true
-        }
+        pincode: {
+          type: Number,
+          required: true,
+        },
+      },
+      billing: {
+        street: {
+          type: String,
+          required: true,
+        },
+        city: {
+          type: String,
+          required: true,
+        },
+        pincode: {
+          type: Number,
+          required: true,
+        },
+      },
     },
-    billing:{
-        street:{
-            type: String,
-        required: true
-        },
-        city:{
-            type: String,
-        required: true
-        },
-        pincode:{
-            type: Number,
-            required: true
-        }
-    }
-    }
-}, {timestamps: true})
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('user', userSchema)
-
-
-
-
-
+module.exports = mongoose.model("user", userSchema);
 
 // User Model
-// { 
+// {
 //   fname: {string, mandatory},
 //   lname: {string, mandatory},
 //   email: {string, mandatory, valid email, unique},
 //   profileImage: {string, mandatory}, // s3 link
-//   phone: {string, mandatory, unique, valid Indian mobile number}, 
+//   phone: {string, mandatory, unique, valid Indian mobile number},
 //   password: {string, mandatory, minLen 8, maxLen 15}, // encrypted password
 //   address: {
 //     shipping: {

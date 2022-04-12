@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const saltRound = 10; // level of difficulty
 const upload = require("../upload/upload");
+const { json } = require("express/lib/response");
 const ObjectId = require('mongoose').Types.ObjectId
 
 const isValid = function (value) {
@@ -141,19 +142,24 @@ const updateUser = async function (req,res){
     try{
     // validation of Objectid in params
     if(!ObjectId.isValid(req.params.userId)) return res.status(400).send({status:false,msg:'enter a valid objectId in params'})
-
+        console.log(req.params.userId)
     // check authorisation of the user
-    if(req.headers.userId != req.params.userId) return res.status(403).send({status:false,msg:'you are not authorized'})
+    if(req.userId != req.params.userId) return res.status(403).send({status:false,msg:'you are not authorized'})
 
     //checking body is empty or not
     if (Object.keys(req.body).length == 0) {
         return res.status(400).send({ status: false, msg: "Enter valid data to update" });
       }
-  
-      let data = req.body;
-      let { fname, lname, email, profileImage, phone, password, address } = data;
-  
-      // validation of fname
+      let obj = {}
+      var data = req.body;
+      var { fname, lname, email, profileImage, phone, password, address } = data;
+    //   if(data.hasOwnProperty("fname")){ // check key name is present or not return boolean
+    //     if(!isValid(fname)) return res.status(400).send({ status: false, msg: "first Name is not valid" });
+    //     obj.fname = data.fname
+    //   }
+      // validation of fname 
+      // 
+
     if (fname){
         if(!isValid(fname)) return res.status(400).send({ status: false, msg: "first Name is not valid" });
     }
@@ -185,37 +191,59 @@ const updateUser = async function (req,res){
     }
 
     if(password){
-        let user = await userModel.findById(req.headers.userId);
+        console.log('p')
+        let user = await userModel.findById(req.userId);
         // check if passsword is same as previous one 
         let same = bcrypt.compareSync(password, user.password);
         console.log(rightPwd);
         if (same) return res.status(400).send({ status: false, msg: "password is same as the lastone, try another one or login" });
+        data.password = await bcrypt.hash(password, saltRound);
     }
     
+    // if(data.hasOwnProperty("fname")){ // check key name is present or not return boolean
+    //         if(!isValid(fname)) return res.status(400).send({ status: false, msg: "first Name is not valid" });
+    //         obj.fname = data.fname
+    //       }
+    //       json.parse()
+
+
     if(address){
         if(address.shipping){
             if(address.shipping.city){
                 if(!isValid(address.shipping.city)) return res.status(400).send({ status:false,msg:'shipping address city is not valid'})
+                var shippingCity = address.shipping.city;
             }
             if(address.shipping.street){
                 if(!isValid(address.shipping.street)) return res.status(400).send({ status:false,msg:'shipping address street is not valid'})
+                var shippingStreet = address.shipping.street;
             }
             if(address.shipping.pincode){
                 if (!/^(\d{4}|\d{6})$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",});
+                var shippingPincode = address.shipping.pincode;
             }
+            
         }
         if(address.billing){
             if(address.billing.city){
                 if(!isValid(address.billing.city)) return res.status(400).send({ status:false,msg:'billing address city is not valid'})
+                var billingCity = address.billing.city; // falana
             }
             if(address.billing.street){
                 if(!isValid(address.billing.street)) return res.status(400).send({ status:false,msg:'billing address street is not valid'})
+                var billingStreet = address.billing.street;
             }
             if(address.billing.pincode){
                 if (!/^(\d{4}|\d{6})$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing",});
+                var billingPincode = address.billing.pincode;
             }
         }
 
+    }else{
+        var asd = address
+        console.log(address)
+        console.log(address.shipping)
+        console.log(address.shipping.city)
+        console.log('1')
     }
     if(req.files && req.files.length>0){
         // uploading file and getting aws s3 link
@@ -225,12 +253,11 @@ const updateUser = async function (req,res){
 
     }
 
-    password = await bcrypt.hash(password, saltRound); // method of becrypt
+     // method of becrypt
     
 
-
-    let updatedUser = userModel.findOneAndUpdate({_id:req.headers.userId}, {$set:{fname:fname,lname:lname,email:email,phone:phone,password:password,profileImage : uploadedFileURL,"address.shipping.city" : address.shipping.city, "address.shipping.street":address.shipping.street,"address.shipping.pincode" : address.shipping.pincode,"address.billing.city" : address.billing.city, "address.billing.street":address.billing.street,"address.billing.pincode" : address.billing.pincode}}, {new:true})
-
+    let updatedUser = await userModel.findOneAndUpdate({_id:req.userId}, {$set:{fname:fname,lname:lname,email:email,phone:phone,password:password,profileImage : uploadedFileURL,"address.shipping.city" : shippingCity, "address.shipping.street":shippingStreet,"address.shipping.pincode" : shippingPincode,"address.billing.city" : billingCity, "address.billing.street":billingStreet,"address.billing.pincode" : billingPincode}}, {new:true})
+    console.log(updatedUser)
     return res.status(200).send({status:true,msg:'successfully updated', data:updatedUser})
 
     }

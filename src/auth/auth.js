@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const authentication = function(req, res, next){
     try{
-        const token = req.headers.Authorization //bearer <token>
+        const token = req.header("Authorization", "Bearer Token")
 
         if(!token) return res.status(401).send({status:false, msg: "Token must be present"})
 
@@ -15,8 +15,9 @@ const authentication = function(req, res, next){
         let timeNow = Math.floor(Date.now() / 1000)
         /// expiration case handle
         if(exp<timeNow) return res.status(401).send({status:false,msg:'Token is expired now'})
+        console.log(decodedToken.userId)
         // putting userId in the headers
-        req.setHeader(userId, decodedToken.userId)        
+        req.userId = decodedToken.userId      
         next();
     }catch(err){
         console.log(err)
