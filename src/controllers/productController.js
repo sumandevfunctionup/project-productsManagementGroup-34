@@ -2,6 +2,7 @@ const productModel = require('../models/productModel')
 const upload = require("../upload/upload");
 const ObjectId = require('mongoose').Types.ObjectId
 const currency = require('currency-symbol-map');
+const { Finspace } = require('aws-sdk');
 
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;
@@ -41,17 +42,15 @@ try{
     if(!Number(price)) return res.status(400).send({status:false,msg:'price is not valid'})
     if(Number(price) <= 0) return res.status(400).send({status:false,msg:'price is not valid'})
     data.price = Number(price);
+    if(!availableSizes) return res.status(400).send({status:false,msg:'enter the sizes'});
+    let size  = availableSizes.split(' ') // taking object as L S M ...
+    for (let i = 0; i < size.length; i++) {
+                if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size[i]))) {
+                    return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+                }
+            }
     
-    // doubt L S M XS XXL
-    // if (availableSizes) {
-    //     let arr = availableSizes.split(" ")
-    //     for (let i = 0; i < arr.length; i++) {
-    //         if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(arr[i]))) {
-    //             return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
-    //         }
-    //     }
-    //     data.availableSizes = arr;
-    // }
+    data.availableSizes = size
 
     if(isFreeShipping){
         let bool = isFreeShipping === 'true'
@@ -78,7 +77,7 @@ try{
       
       // adding the file link and encrypted password in the user Model
       // send error if profileImage is present
-      data.productImage = uploadedFileURL
+    //   data.productImage = uploadedFileURL
 
     let product = await productModel.create(data);
     return res.status(201).send({status:true,msg:'product created succesfully', data : product})
@@ -102,7 +101,14 @@ const getProducts = async function(req,res){
                 filterCondn.title = {$regex : regexName}
             }
             if(size){
-                if(!isValid(size)) return res.status(400).send({status:false,msg:'enter valid size parameter'})
+                size = size.split(' ');
+                for (let i = 0; i < size.length; i++) {
+                    if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size[i]))) {
+                        return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+                    }
+                }
+                filterCondn.availableSizes = {$in : size}
+
             }
 
             if(priceGreaterThan && priceLessThan){
@@ -210,6 +216,16 @@ const updateProductById = async function(req,res){
             if(!isValid(style)) return res.status(400).send({status:false,msg:'description is not valid'})
         }
 
+        if(availableSizes){
+            availableSizes = availableSizes.split(' ');
+            for (let i = 0; i < availableSizes.length; i++) {
+                if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(availableSizes[i]))) {
+                    return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+                }
+            }
+            data,availableSizes = availableSizes;
+
+        }
         // if product image is present
         if(req.files && req.files.length >0){
 
