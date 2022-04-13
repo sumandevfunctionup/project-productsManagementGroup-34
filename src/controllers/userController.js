@@ -248,7 +248,6 @@ const updateUser = async function (req,res){
     
 
     let updatedUser = await userModel.findOneAndUpdate({_id:req.userId}, {$set:{fname:fname,lname:lname,email:email,phone:phone,password:password,profileImage : uploadedFileURL,"address.shipping.city" : shippingCity, "address.shipping.street":shippingStreet,"address.shipping.pincode" : shippingPincode,"address.billing.city" : billingCity, "address.billing.street":billingStreet,"address.billing.pincode" : billingPincode}}, {new:true})
-    console.log(updatedUser)
     return res.status(200).send({status:true,msg:'successfully updated', data:updatedUser})
 
     }
