@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const saltRound = 10; // level of difficulty
 const upload = require("../upload/upload");
-const { json } = require("express/lib/response");
 const ObjectId = require('mongoose').Types.ObjectId
 
 const isValid = function (value) {
@@ -125,9 +124,9 @@ const getUser = async function(req,res){
         if(!ObjectId.isValid(req.params.userId)) return res.status(400).send({status:false,msg:'enter a valid objectId in params'})
 
         // check authorisation of the user
-        if(req.headers.userId != req.params.userId) return res.status(403).send({status:false,msg:'you are not authorized'})
+        if(req.userId != req.params.userId) return res.status(403).send({status:false,msg:'you are not authorized'})
 
-        let user = await userModel.findById(req.headers.userId)
+        let user = await userModel.findById(req.userId)
         if(!user) return res.status(404).send({status:false,msg:'No user Found'})
         return res.status(200).send({status:true,msg:'User Profile details', data : user})
 
@@ -238,18 +237,12 @@ const updateUser = async function (req,res){
             }
         }
 
-    }else{
-        var asd = address
-        console.log(address)
-        console.log(address.shipping)
-        console.log(address.shipping.city)
-        console.log('1')
     }
     if(req.files && req.files.length>0){
         // uploading file and getting aws s3 link
         let files = req.files;
     //upload to s3 and get the uploaded link
-    var uploadedFileURL = await upload.uploadFile(files[0]); // used var to declare uploadedFileURl in global scope
+      var uploadedFileURL = await upload.uploadFile(files[0]); // used var to declare uploadedFileURl in global scope
 
     }
 
