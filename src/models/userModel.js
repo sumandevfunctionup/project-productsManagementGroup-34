@@ -5,15 +5,18 @@ const userSchema = new mongoose.Schema(
     fname: {
       type: String,
       required: true,
+      trim :true
     },
     lname: {
       type: String,
       required: true,
+      trim :true
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      trim :true
     },
     password: {
       type: String,
@@ -23,34 +26,40 @@ const userSchema = new mongoose.Schema(
     profileImage: {
       type: String,
       required: true,
+      trim :true
     },
     phone: {
       type: String,
       required: true,
+      trim :true
     },
     address: {
       shipping: {
         street: {
           type: String,
           required: true,
+          trim :true
         },
         city: {
           type: String,
           required: true,
+          trim :true
         },
         pincode: {
           type: Number,
-          required: true,
+          required: true
         },
       },
       billing: {
         street: {
           type: String,
           required: true,
+          trim :true
         },
         city: {
           type: String,
           required: true,
+          trim :true
         },
         pincode: {
           type: Number,
@@ -63,27 +72,3 @@ const userSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("user", userSchema);
-
-// User Model
-// {
-//   fname: {string, mandatory},
-//   lname: {string, mandatory},
-//   email: {string, mandatory, valid email, unique},
-//   profileImage: {string, mandatory}, // s3 link
-//   phone: {string, mandatory, unique, valid Indian mobile number},
-//   password: {string, mandatory, minLen 8, maxLen 15}, // encrypted password
-//   address: {
-//     shipping: {
-//       street: {string, mandatory},
-//       city: {string, mandatory},
-//       pincode: {number, mandatory}
-//     },
-//     billing: {
-//       street: {string, mandatory},
-//       city: {string, mandatory},
-//       pincode: {number, mandatory}
-//     }
-//   },
-//   createdAt: {timestamp},
-//   updatedAt: {timestamp}
-// }

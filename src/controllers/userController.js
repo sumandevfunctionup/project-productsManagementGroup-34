@@ -3,11 +3,11 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const saltRound = 10; // level of difficulty
 const upload = require("../upload/upload");
-const ObjectId = require('mongoose').Types.ObjectId
+const ObjectId = require('mongoose').Types.ObjectId // validation of object id
 
 const isValid = function (value) {
   if (typeof value === "undefined" || value === null) return false;
-  if (typeof value === "string" && value.trim().length === 0) return false;
+  if (typeof value === "string" && value.trim().length === 0) return false; // "   " => false
   return true;
 };
 
@@ -38,6 +38,7 @@ const userRegister = async function (req, res) {
     let dupEmail = await userModel.findOne({ email: email });
     if (dupEmail) return res.status(400).send({ status: false, msg: "email is already registered" });
 
+    // validation of phone india format
     if (!/^[6-9]\d{9}$/.test(phone)) return res.status(400).send({status: false,message: "phone number should be valid number",});
 
     let dupPhone = await userModel.findOne({ phone: phone });
@@ -50,7 +51,7 @@ const userRegister = async function (req, res) {
     if(!isValid(address.shipping.city)) return res.status(400).send({status:false,msg:'enter the shipping address city'})
     if(!isValid(address.shipping.street)) return res.status(400).send({status:false,msg:'enter the shipping address street'})
     if(!address.shipping.pincode) return res.status(400).send({status:false,msg:'enter the shipping address pincode'})
-    if (!/^(\d{4}|\d{6})$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",});
+    if (!/^(\d{4}|\d{6})$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",}); // 6 digit pincode
 
     //validation of billing address
     if(!address.billing) return res.status(400).send({status:false,msg:'enter the billing address'})
@@ -64,7 +65,7 @@ const userRegister = async function (req, res) {
 
   // uploading file and getting aws s3 link
   let files = req.files;
-  if (!files || files.length == 0) return res.status(400).send({status:false,msg:'please add the file'})
+  if (!files || files.length == 0) return res.status(400).send({status:false,msg:'please add the profile image'})
 
     //upload to s3 and get the uploaded link
     var uploadedFileURL = await upload.uploadFile(files[0]); // used var to declare uploadedFileURl in global scope
@@ -72,7 +73,7 @@ const userRegister = async function (req, res) {
     // adding the file link and encrypted password in the user Model
     // send error if profileImage is present
     data.profileImage = uploadedFileURL
-    data.password = await bcrypt.hash(password, saltRound); // method of becrypt
+    data.password = await bcrypt.hash(password, saltRound); // method of becrypt saalt Round = 10 (minimum level of encryption)
     // hashing documentation
 
     const createUser = await userModel.create(data)
@@ -141,7 +142,6 @@ const updateUser = async function (req,res){
     try{
     // validation of Objectid in params
     if(!ObjectId.isValid(req.params.userId)) return res.status(400).send({status:false,msg:'enter a valid objectId in params'})
-        console.log(req.params.userId)
     // check authorisation of the user
     if(req.userId != req.params.userId) return res.status(403).send({status:false,msg:'you are not authorized'})
 
@@ -149,8 +149,7 @@ const updateUser = async function (req,res){
     if (Object.keys(req.body).length == 0) {
         return res.status(400).send({ status: false, msg: "Enter valid data to update" });
       }
-      let obj = {}
-      var data = req.body;
+      let data = req.body;
       var { fname, lname, email, profileImage, phone, password, address } = data;
     //   if(data.hasOwnProperty("fname")){ // check key name is present or not return boolean
     //     if(!isValid(fname)) return res.status(400).send({ status: false, msg: "first Name is not valid" });
@@ -190,12 +189,10 @@ const updateUser = async function (req,res){
     }
 
     if(password){
-        console.log('p')
         let user = await userModel.findById(req.userId);
         // check if passsword is same as previous one 
         let same = bcrypt.compareSync(password, user.password);
-        console.log(rightPwd);
-        if (same) return res.status(400).send({ status: false, msg: "password is same as the lastone, try another one or login" });
+        if (same) return res.status(400).send({ status: false, msg: "password is same as the last one, try another password or login again" });
         data.password = await bcrypt.hash(password, saltRound);
     }
     
@@ -238,6 +235,7 @@ const updateUser = async function (req,res){
         }
 
     }
+    // update of profile image
     if(req.files && req.files.length>0){
         // uploading file and getting aws s3 link
         let files = req.files;

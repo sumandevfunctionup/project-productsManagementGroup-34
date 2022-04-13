@@ -5,11 +5,9 @@ const route = require("./routes/routes");
 const mongoose = require('mongoose')
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json()); //  global middlewares content type : application/json
+app.use(bodyParser.urlencoded({extended: true}));  //  global middlewares
 app.use(multer().any()) 
-
-
 
 mongoose.connect("mongodb+srv://sumandev:aBosU15RXTGZYkKq@cluster0.4du2i.mongodb.net/group34Database?retryWrites=true&w=majority", {useNewUrlParser: true})
 .then(() => console.log('mongodb running on 27017'))

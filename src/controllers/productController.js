@@ -89,6 +89,51 @@ catch(error){
 }
 }
 
+const getProducts = async function(req,res){
+    try{
+        let filterCondn = {isDeleted:false};
+        let query = req.query;
+        let {name,size,priceGreaterThan, priceLessThan, priceSorting} = query;
+        if(Object.keys(req.query).length >0){ // Size
+            if(name){
+                if(!isValid(name)) return res.status(400).send({status:false,msg:'enter the valid name in filter condition'})
+                const regexName = new RegExp(name,"i")
+                console.log(regexName)
+                filterCondn.title = {$regex : regexName}
+            }
+            if(size){
+                if(!isValid(size)) return res.status(400).send({status:false,msg:'enter valid size parameter'})
+            }
+
+            if(priceGreaterThan && priceLessThan){
+                if(!(Number(priceGreaterThan) && Number(priceLessThan))) return res.status(400).send({status:false,msg:'price greater than or price less than is not valid'}) 
+                if(Number(priceGreaterThan) > Number(priceLessThan)) return res.status(400).send({status:false,msg:'price conditions are not valid'})
+                filterCondn.price = {$gte:priceGreaterThan, $lte:priceLessThan}
+            }else if(priceGreaterThan){
+                if(!Number(priceGreaterThan)) return res.status(400).send({status:false,msg:'price greater than is not valid'})
+                filterCondn.price = {$gte:priceGreaterThan};
+
+            }else if(priceLessThan){
+                if(!Number(priceLessThan)) return res.status(400).send({status:false,msg:'price greater than is not valid'})
+                filterCondn.price = {$lte:priceLessThan};
+            }
+
+            if(priceSorting){
+                if(![-1,1].includes(Number(priceSorting))) return res.status(400).send({status:false,msg:'price sorting is not valid'})
+                let products = await productModel.find(filterCondn).sort({price:priceSorting})
+                return res.status(200).send({status:true,msg:"Product list", data : products});
+            }
+            
+        }
+        let products = await productModel.find(filterCondn);
+        if(!products) return res.status(404).send({status:false,msg:'No product found'})
+        return res.status(200).send({status:true,msg:'products found successfully', data:products})
+    }
+    catch(error){
+        return res.status(500).send({status:false,msg:error.message})
+    }
+}
+
 const getProductById = async function (req,res){
     try{
         let productId = req.params.productId;
@@ -184,6 +229,7 @@ const updateProductById = async function(req,res){
     }
 }
 module.exports.create = create;
+module.exports.getProducts = getProducts;
 module.exports.getProductById = getProductById;
 module.exports.updateProductById = updateProductById;
 module.exports.deleteProductById = deleteProductById;

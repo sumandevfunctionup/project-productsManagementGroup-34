@@ -15,9 +15,8 @@ const authentication = function(req, res, next){
         let timeNow = Math.floor(Date.now() / 1000)
         /// expiration case handle
         if(exp<timeNow) return res.status(401).send({status:false,msg:'Token is expired now'})
-        console.log(decodedToken.userId)
         // putting userId in the headers
-        req.userId = decodedToken.userId      
+        req.userId = decodedToken.userId     // to prevent decoding token again 
         next();
     }catch(err){
         console.log(err)
