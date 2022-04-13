@@ -193,7 +193,7 @@ const updateUser = async function (req,res){
         // check if passsword is same as previous one 
         let same = bcrypt.compareSync(password, user.password);
         if (same) return res.status(400).send({ status: false, msg: "password is same as the last one, try another password or login again" });
-        data.password = await bcrypt.hash(password, saltRound);
+        password = await bcrypt.hash(password, saltRound);
     }
     
     // if(data.hasOwnProperty("fname")){ // check key name is present or not return boolean
