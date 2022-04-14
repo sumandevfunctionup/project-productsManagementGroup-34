@@ -21,5 +21,8 @@ router.put('/products/:productId', productController.updateProductById)
 
 // cart APIs
 router.post('/users/:userId/cart', auth.authentication,cartController.addItems)
+router.put('/users/:userId/cart', auth.authentication,cartController.removeItems)
+router.get('/users/:userId/cart', auth.authentication, cartController.getCart)
+router.delete('/users/:userId/cart', auth.authentication, cartController.deleteCart)
 
 module.exports = router;

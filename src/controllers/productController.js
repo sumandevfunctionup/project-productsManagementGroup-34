@@ -15,7 +15,7 @@ try{
     
     let data = req.body;
     let {title,description, price, currencyId,currencyFormat,isFreeShipping,style,availableSizes,installments} = data;
-    console.log(availableSizes)
+
     // title validation
     if(!title) return res.status(400).send({status:false,msg:'enter the title for product'})
 
@@ -44,17 +44,10 @@ try{
     data.price = Number(price);
 
     data.availableSizes = JSON.parse(availableSizes)
-    // if(!availableSizes) return res.status(400).send({status:false,msg:'enter the sizes'});
-    // let size  = availableSizes.split(' ') // taking object as L S M ...
-    // if(size.length == 0) return res.status(400).send({status:false,msg:'enter the sizes'})
-    // for (let i = 0; i < size.length; i++) {
-    //             if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size[i]))) {
-    //                 return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
-    //             }
-    //         }
-    
-    
-    // data.availableSizes = size
+    for(let size of data.availableSizes){
+        if(!["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size)) return res.status(400).send({status:false,msg:'wrong size parameter is given'})
+    }
+
 
     if(isFreeShipping){
         let bool = isFreeShipping === 'true'
@@ -72,16 +65,16 @@ try{
         data.installments = Number(installments)
     }
 
-    // let files = req.files;
+    let files = req.files;
 
-    // if (!files || files.length == 0) return res.status(400).send({status:false,msg:'please add the file'})
+    if (!files || files.length == 0) return res.status(400).send({status:false,msg:'please add the file'})
   
-    //   //upload to s3 and get the uploaded link
-    //   var uploadedFileURL = await upload.uploadFile(files[0]); // used var to declare uploadedFileURl in global scope
+      //upload to s3 and get the uploaded link
+      var uploadedFileURL = await upload.uploadFile(files[0]); // used var to declare uploadedFileURl in global scope
       
-      // adding the file link and encrypted password in the user Model
-      // send error if profileImage is present
-    //   data.productImage = uploadedFileURL
+    //   adding the file link and encrypted password in the user Model
+    //   send error if profileImage is present
+      data.productImage = uploadedFileURL
 
     let product = await productModel.create(data);
     return res.status(201).send({status:true,msg:'product created succesfully', data : product})
@@ -105,10 +98,10 @@ const getProducts = async function(req,res){
                 filterCondn.title = {$regex : regexName}
             }
             if(size){
-                size = size.split(' ');
+                size = JSON.parse(size);
                 for (let i = 0; i < size.length; i++) {
                     if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size[i]))) {
-                        return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+                        return res.status(400).send({ status: false, message: `invalid size parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
                     }
                 }
                 filterCondn.availableSizes = {$in : size}
@@ -222,13 +215,14 @@ const updateProductById = async function(req,res){
         }
 
         if(availableSizes){
-            availableSizes = availableSizes.split(' ');
+            data.availableSizes =JSON.parse(availableSizes);
+            availableSizes =JSON.parse(availableSizes);
             for (let i = 0; i < availableSizes.length; i++) {
                 if (!(["XS", "X", "S", "M", "L", "XL", "XXL"].includes(availableSizes[i]))) {
-                    return res.status(400).send({ status: false, message: `invalid sign parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+                    return res.status(400).send({ status: false, message: `invalid size parameter, Sizes must be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
                 }
             }
-            data.availableSizes = availableSizes;
+            
 
         }
         // if product image is present
