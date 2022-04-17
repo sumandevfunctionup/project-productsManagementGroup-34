@@ -85,9 +85,7 @@ const removeItems = async function(req,res){
         let index = cart.items.findIndex(el => el.productId == productId);
         let quantity = cart.items[index].quantity;
         if(removeProduct == 0){ // remove the comlpete object (removeProduct == 0)
-            cart.totalItems -= quantity;
-            cart.totalPrice -= quantity * product.price
-            let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId, items:{$elemMatch : {productId : productId}}},{$pull : {items:{productId:productId}},$set:{totalItems : cart.totalItems, totalPrice : cart.totalPrice}}, {new:true})
+            let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId, items:{$elemMatch : {productId : productId}}},{$pull : {items:{productId:productId}},$inc:{totalItems:-1,totalPrice:-quantity*product.price}},{new:true})
             return res.status(200).send({status:true,msg:'deleted Successfully', data:updatedCart})
         }
         if(quantity == 1){ // if only 1 quantity of product is present so remove the object
@@ -148,10 +146,11 @@ const deleteCart = async function(req,res){
 
         let cart = await cartModel.findOne({userID : req.userId})
         if(!cart) return res.status(400).send({status:false,msg:'cart is not present for this user'})
+        if(cart.items.length ==0 && cart.totalPrice == 0 && cart.totalItems == 0) return res.status(400).send({status:false,msg:'cart is already deleted'})
         
         await cartModel.findOneAndUpdate({userID : req.userId}, {items:[],totalItems:0, totalPrice : 0},{new:true})
 
-        return res.status(204)
+        return res.status(204).send()
     }
     catch(error){
         return res.status(500).send({status:false, msg:error.message})
