@@ -28,9 +28,10 @@ const addItems = async function(req,res){ // {id:productId}
             let index = cart.items.findIndex(el => el.productId == productId) // -1 or index
             if(index >-1) { // if the product is already in the cart
                cart.items[index].quantity +=1; //increase the quantity of product by 1
-                let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId},{items:cart.items,$inc:{totalItems:1,totalPrice:product.price}},{new:true})
+                let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId},{items:cart.items,$inc:{totalPrice:product.price}},{new:true})
                 return res.status(200).send({status:true,msg:'product quantity is increased by 1', data : updatedCart})
             }
+            // total itmes => number of product objects in item array
             //if product  is not present in the cart.items
             // $addToSet => add a element in the array
             let products = {productId:productId,quantity:1}

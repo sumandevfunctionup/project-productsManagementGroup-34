@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userController = require("../controllers/userController")
-const cartController = require("../controllers/cartController")
 const productController = require("../controllers/productController")
+const cartController = require("../controllers/cartController")
+const orderController = require("../controllers/orderController")
 const auth = require('../auth/auth')
 
 // user APIs
@@ -25,4 +26,7 @@ router.put('/users/:userId/cart', auth.authentication,cartController.removeItems
 router.get('/users/:userId/cart', auth.authentication, cartController.getCart)
 router.delete('/users/:userId/cart', auth.authentication, cartController.deleteCart)
 
+// order APIs
+router.post('/users/:userId/orders', auth.authentication,orderController.createOrder)
+router.put('/users/:userId/orders', auth.authentication, orderController.updateOrder)
 module.exports = router;

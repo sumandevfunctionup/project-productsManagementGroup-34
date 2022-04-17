@@ -8,6 +8,7 @@ const cartSchema = new mongoose.Schema({
         unique: true
     },
     items: [{
+            _id:false, // works as select(_id : false) // remove the newly created "_id" in the product,
         productId: { type: ObjectId,
              required: true,
               ref:'product' },
