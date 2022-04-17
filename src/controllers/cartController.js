@@ -98,7 +98,7 @@ const removeItems = async function(req,res){
         // if product's quantity is more than 1
 
         cart.items[index].quantity -=1;
-        let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId, items:{$elemMatch : {productId : productId}}},{items : cart.items,$inc:{totalItems : -1, totalPrice : -product.price}}, {new:true})
+        let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId, items:{$elemMatch : {productId : productId}}},{items : cart.items,$inc:{totalPrice : -product.price}}, {new:true})
             return res.status(200).send({status:true,msg:'deleted Successfully', data:updatedCart})
 
     }
