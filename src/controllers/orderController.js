@@ -20,35 +20,15 @@ const createOrder = async function(req,res){ // input cancelable and status
         // !  status code doubt
         if(!user) return res.status(404).send({status:false,msg:'no user found'}) 
 
-        // cart validation and at least one product present
-        let cart = await cartModel.findOne({userId:req.userId})
-        if(!cart) return res.status(400).send({status:false,msg:'cart is not present for the specific user'})
-
-        // no product added in the cart 
-        if(cart.items.length == 0) return res.status(400).send({status:false,msg:'cart of this user is empty, add products first'})
-
         //check body is empty or not
         if(Object.keys(req.body).length == 0 ) return res.status(400).send({status:false,msg:"enter the order details"})
-
-        let {cancellable, status} = req.body;
-        // include array function => return boolean 
-        // similar to hasOwnPropety(<key>) return boolean
-        if(![true,false].includes(cancellable)) return res.status(400).send({status:false,msg:'enter cancelable in correct format'})
-
-        if(!['pending','completed', 'cancelled'].includes(status)) return res.status(400).send({status:false,msg:"status should be from [pending,completed,canceled]"})
+        let data = req.body;
 
         let totalQuantity = 0;
         // can use forEach, for loop also
-        cart.items.map(product => totalQuantity += product.quantity)
+        data.items.map(item => totalQuantity += item.quantity)
 
-        let data = {
-            userId : req.userId,
-            items: cart.items,
-            totalPrice : cart.totalPrice,
-            totalItems : cart.totalItems,
-            totalQuantity : totalQuantity,
-            cancellable, status
-        }
+        data.totalQuantity = totalQuantity;
 
         let order = await orderModel.create(data)
         return res.status(201).send({status:true,msg:"order created successfully", data : order})
@@ -72,22 +52,25 @@ const updateOrder = async function(req,res){
         //check body is empty or not
         if(Object.keys(req.body).length == 0 ) return res.status(400).send({status:false,msg:"enter the order details"})
 
-        let {orderId, status} = req.body;
-        // include array function => return boolean 
-        // similar to hasOwnPropety(<key>) return boolean
-       if(!ObjectId.isValid(orderId)) return res.status(400).send({status:false,msg:'orderId is not valid'})
+       let status = req.body.status;
+       if(!['completed', 'cancelled'].includes(status)) return res.status(400).send({status:false,msg:'status should take only cancelled, completed'})
 
-       let order = await  orderModel.findOne({userId : req.userId})
-       if(!order) return res.status(400).send({status:false,msg:'no order present'})
+       let order = await orderModel.findOne({userId : req.userId});
 
-       if(order.userId != req.userId) return res.status(403).send({status:false,msg:'You are not authorized'})
+       if(!order) return res.status(400).send({status:false,msg:'order is not present, create the order first'})
 
-        if(!['pending','completed', 'cancelled'].includes(status)) return res.status(400).send({status:false,msg:"status should be from [pending,completed,canceled]"})
+       if(order.status == 'completed') return res.status(400).send({status:false,msg:'order is already completed, cannot be changed now'})
 
-        if(order.cancellable == false && status == 'cancelled') return res.status(400).send({status:false,msg:'Order cannot be cancelled'})
+       if(order.cancellable == false && status == "cancelled") return res.status(400).send({status:false,msg:"oorder cannot be cancelled"})
 
-        let updatedOrder = await orderModel.findByIdAndUpdate(orderId, {status : status}, {new:true}) 
-        return res.status(200).send({status:true,msg:'success', data :  updatedOrder})
+       if(order.cancellable == true && status == "cancelled"){
+          let  updatedOrder = await orderModel.findOneAndUpdate({userId : req.userId}, {status : status}, {new:true})
+           return res.status(200).send({status:true,msg:'order is cancelled', data : updatedOrder})
+       }
+       if(status == "completed" && order.status == "pending"){
+        let  updatedOrder = await orderModel.findOneAndUpdate({userId : req.userId}, {status : status}, {new:true})
+        return res.status(200).send({status:true,msg:'order is cancelled', data : updatedOrder})
+       }
 
     }catch(error){
         return res.status(500).send({status:false,msg:error.message})

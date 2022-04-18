@@ -3,8 +3,9 @@ const userModel = require("../models/userModel")
 const productModel = require('../models/productModel')
 const ObjectId = require('mongoose').Types.ObjectId
 
-const addItems = async function(req,res){ // {id:productId}
+const addItems = async function(req,res){ // INPUT => {id:productId}
     try{
+        // getting the decode token userId from request
         // validation of Objectid in params
         if(!ObjectId.isValid(req.params.userId)) return res.status(400).send({status:false,msg:'enter a valid objectId in params'})
         // check authorisation of the user
@@ -36,7 +37,7 @@ const addItems = async function(req,res){ // {id:productId}
             // $addToSet => add a element in the array
             let products = {productId:productId,quantity:1}
             let updatedCart = await cartModel.findOneAndUpdate({userId : req.userId},{$addToSet: {items :products},$inc:{totalItems:1,totalPrice:product.price}},{new:true})
-            return res.send(updatedCart)
+            return res.status(200).send({status:true,msg:'product is added', data : updatedCart})
 
         }
         // if cart is not created yet
@@ -78,10 +79,14 @@ const removeItems = async function(req,res){
         let cart = await cartModel.findOne({userID : req.userId}) 
         if(!cart) return res.status(400).send({status:false,msg:'cart is not present for this user'})
 
+
+        //  we can use a findOndex function...
         let cartWithProduct = await cartModel.findOne({userId : req.userId, items:{$elemMatch : {productId : productId}}}).lean()
         if(!cartWithProduct) return res.status(404).send({status:false,msg:'not able to find the product in the cart'})
 
         if(removeProduct != 1 && removeProduct !=0) return res.status(400).send({status:false,msg:'removeProduct should be 1 or 0 only'})
+
+        
         let index = cart.items.findIndex(el => el.productId == productId);
         let quantity = cart.items[index].quantity;
         if(removeProduct == 0){ // remove the comlpete object (removeProduct == 0)
