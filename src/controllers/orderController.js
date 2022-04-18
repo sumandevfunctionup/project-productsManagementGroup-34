@@ -3,12 +3,6 @@ const cartModel = require('../models/cartModel')
 const userModel = require("../models/userModel")
 const ObjectId = require('mongoose').Types.ObjectId
 
-const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    return true;
-}
-
 const createOrder = async function(req,res){ // input cancelable and status
     try{
         // validation of Objectid in params
@@ -22,7 +16,7 @@ const createOrder = async function(req,res){ // input cancelable and status
 
         //check body is empty or not
         if(Object.keys(req.body).length == 0 ) return res.status(400).send({status:false,msg:"enter the order details"})
-        let data = req.body;
+        let data = req.body; // cart details (userId,items, totalItems, totalPrice)
 
         let totalQuantity = 0;
         // can use forEach, for loop also
@@ -60,17 +54,20 @@ const updateOrder = async function(req,res){
        if(!order) return res.status(400).send({status:false,msg:'order is not present, create the order first'})
 
        if(order.status == 'completed') return res.status(400).send({status:false,msg:'order is already completed, cannot be changed now'})
+       if(order.status == "cancelled") return res.status(400).send({status:false,msg:"order is already cancelled"})
 
-       if(order.cancellable == false && status == "cancelled") return res.status(400).send({status:false,msg:"oorder cannot be cancelled"})
+       // for the order.status == "pending"
+       if(order.cancellable == false && status == "cancelled") return res.status(400).send({status:false,msg:"order cannot be cancelled"})
 
        if(order.cancellable == true && status == "cancelled"){
           let  updatedOrder = await orderModel.findOneAndUpdate({userId : req.userId}, {status : status}, {new:true})
            return res.status(200).send({status:true,msg:'order is cancelled', data : updatedOrder})
        }
-       if(status == "completed" && order.status == "pending"){
+       if(status == "completed"){
         let  updatedOrder = await orderModel.findOneAndUpdate({userId : req.userId}, {status : status}, {new:true})
-        return res.status(200).send({status:true,msg:'order is cancelled', data : updatedOrder})
+        return res.status(200).send({status:true,msg:'order is completed', data : updatedOrder})
        }
+
 
     }catch(error){
         return res.status(500).send({status:false,msg:error.message})

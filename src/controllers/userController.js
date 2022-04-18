@@ -22,6 +22,7 @@ const userRegister = async function (req, res) {
     let data = req.body;
     let { fname, lname, email, profileImage, phone, password, address } = data;
 
+
     // validation of fname
     if (!isValid(fname))
       return res.status(400).send({ status: false, msg: "first Name is required" });
@@ -45,7 +46,9 @@ const userRegister = async function (req, res) {
     if (dupPhone) return res.status(400).send({ status: false, msg: "phone is already registered" });
 
     //validation of address
+
     if(!address) return res.status(400).send({status:false,msg:'enter the address'})
+    address = JSON.parse(address)
     //validation of shipping address add isvalid function
     if(!address.shipping) return res.status(400).send({status:false,msg:'enter the shipping address'})
     if(!isValid(address.shipping.city)) return res.status(400).send({status:false,msg:'enter the shipping address city'})
@@ -204,6 +207,7 @@ const updateUser = async function (req,res){
 
 
     if(address){
+      address = JSON.parse(address)
         if(address.shipping){
             if(address.shipping.city){
                 if(!isValid(address.shipping.city)) return res.status(400).send({ status:false,msg:'shipping address city is not valid'})
