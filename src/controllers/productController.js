@@ -29,7 +29,10 @@ try{
     if(!isValid(description)) return res.status(400).send({status:false,msg:'description is not valid'})
 
     // currency Id validation
-    if(!currencyId) return res.status(400).send({status:false,msg:'enter the currecy Id'})
+    if(!currencyId) {
+        data.currencyId = "INR"
+        currencyId = "INR"
+    }
     if(!isValid(currencyId)) return res.status(400).send({Status:false,msg:"currency Id is not valid"})
 
     if(currencyFormat) return res.status(400).send({status:false, msg:'just add the currency Id'})
@@ -52,7 +55,6 @@ try{
 
     if(isFreeShipping){
         let bool = isFreeShipping === 'true'
-        console.log(bool)
         if(bool != true && bool != false ) return res.status(400).send({status:false,msg:'invalid parameter in isFreeShipping'})
     }
 
@@ -95,7 +97,6 @@ const getProducts = async function(req,res){
             if(name){
                 if(!isValid(name)) return res.status(400).send({status:false,msg:'enter the valid name in filter condition'})
                 const regexName = new RegExp(name,"i")
-                console.log(regexName)
                 filterCondn.title = {$regex : regexName}
             }
             if(size){
@@ -131,7 +132,7 @@ const getProducts = async function(req,res){
             
         }
         let products = await productModel.find(filterCondn);
-        if(!products) return res.status(404).send({status:false,msg:'No product found'})
+        if(products.length == 0) return res.status(404).send({status:false,msg:'No product found'})
         return res.status(200).send({status:true,msg:'products found successfully', data:products})
     }
     catch(error){
@@ -208,7 +209,6 @@ const updateProductById = async function(req,res){
         }
         if(isFreeShipping){
             let bool = isFreeShipping === 'true'
-            console.log(bool)
             if(bool != true && bool != false ) return res.status(400).send({status:false,msg:'invalid parameter in isFreeShipping'})
         }
         if(style) {

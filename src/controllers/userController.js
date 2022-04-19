@@ -67,7 +67,6 @@ const userRegister = async function (req, res) {
   
     if (!password) return res.status(400).send({ status: false, msg: "Password is required" });
     if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: "Password length should be 8 to 15" });
-    console.log("Hi")
   // uploading file and getting aws s3 link
   let files = req.files;
   if (!files || files.length == 0) return res.status(400).send({status:false,msg:'please add the profile image'})
@@ -84,7 +83,6 @@ const userRegister = async function (req, res) {
     const createUser = await userModel.create(data)
     return res.status(201).send({ status: true, msg: "Created succesfully", data: createUser });
   } catch (error) {
-    console.log("error", error.message);
     res.status(500).send({ status: false, msg: error.message });
   }
 };
@@ -108,7 +106,6 @@ const login = async function (req, res) {
     if (!user)return res.status(400).send({ status: false, msg: "emailId is not correct" });
 
     let rightPwd = bcrypt.compareSync(password, user.password);
-    console.log(rightPwd);
     if (!rightPwd) return res.status(400).send({ status: false, msg: "password is incorrect" });
 
     let token = jwt.sign(
