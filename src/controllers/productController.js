@@ -43,7 +43,8 @@ try{
     if(Number(price) <= 0) return res.status(400).send({status:false,msg:'price is not valid'})
     data.price = Number(price);
 
-    data.availableSizes = JSON.parse(availableSizes)
+    if(typeof(availableSizes) == 'string') data.availableSizes = JSON.parse(availableSizes)
+    if(availableSizes.length == 0) return res.status(400).send({status:false,msg: 'available size cannot be empty'})
     for(let size of data.availableSizes){
         if(!["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size)) return res.status(400).send({status:false,msg:'wrong size parameter is given'})
     }
