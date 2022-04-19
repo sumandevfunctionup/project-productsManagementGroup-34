@@ -48,7 +48,7 @@ const userRegister = async function (req, res) {
     //validation of address
 
     if(!address) return res.status(400).send({status:false,msg:'enter the address'})
-    address = JSON.parse(address)
+    if(typeof(address == 'string')) address = JSON.parse(address)
     //validation of shipping address add isvalid function
     if(!address.shipping) return res.status(400).send({status:false,msg:'enter the shipping address'})
     if(!isValid(address.shipping.city)) return res.status(400).send({status:false,msg:'enter the shipping address city'})
@@ -63,9 +63,11 @@ const userRegister = async function (req, res) {
     if(!address.billing.pincode) return res.status(400).send({status:false,msg:'enter the billing address pincode'})
     if (!/^(\d{4}|\d{6})$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing"});
 
+    data.address = address;
+  
     if (!password) return res.status(400).send({ status: false, msg: "Password is required" });
     if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: "Password length should be 8 to 15" });
-
+    console.log("Hi")
   // uploading file and getting aws s3 link
   let files = req.files;
   if (!files || files.length == 0) return res.status(400).send({status:false,msg:'please add the profile image'})
@@ -153,13 +155,7 @@ const updateUser = async function (req,res){
         return res.status(400).send({ status: false, msg: "Enter valid data to update" });
       }
       let data = req.body;
-      var { fname, lname, email, profileImage, phone, password, address } = data;
-    //   if(data.hasOwnProperty("fname")){ // check key name is present or not return boolean
-    //     if(!isValid(fname)) return res.status(400).send({ status: false, msg: "first Name is not valid" });
-    //     obj.fname = data.fname
-    //   }
-      // validation of fname 
-      // 
+      let { fname, lname, email, profileImage, phone, password, address } = data;
 
     if (fname){
         if(!isValid(fname)) return res.status(400).send({ status: false, msg: "first Name is not valid" });
@@ -207,7 +203,7 @@ const updateUser = async function (req,res){
 
 
     if(address){
-      address = JSON.parse(address)
+      if(typeof(address) == 'string') address = JSON.parse(address)
         if(address.shipping){
             if(address.shipping.city){
                 if(!isValid(address.shipping.city)) return res.status(400).send({ status:false,msg:'shipping address city is not valid'})
