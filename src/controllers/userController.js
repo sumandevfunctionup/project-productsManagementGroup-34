@@ -32,8 +32,8 @@ const userRegister = async function (req, res) {
       return res.status(400).send({ status: false, msg: "last Name is required" });
 
     // valiation of email
-    email = email.trim()
-    if (!/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(email))
+    data.email = data.email.trim()
+    if (!/^\w+([\.-]?\w+)@\w+([\. -]?\w+)(\.\w{2,3})+$/.test(data.email))
       return res.status(400).send({ status: false, msg: "email ID is not valid" });
 
     let dupEmail = await userModel.findOne({ email: email });
@@ -54,14 +54,14 @@ const userRegister = async function (req, res) {
     if(!isValid(address.shipping.city)) return res.status(400).send({status:false,msg:'enter the shipping address city'})
     if(!isValid(address.shipping.street)) return res.status(400).send({status:false,msg:'enter the shipping address street'})
     if(!address.shipping.pincode) return res.status(400).send({status:false,msg:'enter the shipping address pincode'})
-    if (!/^(\d{4}|\d{6})$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",}); // 6 digit pincode
+    if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",}); // 6 digit pincode
 
     //validation of billing address
     if(!address.billing) return res.status(400).send({status:false,msg:'enter the billing address'})
     if(!isValid(address.billing.city)) return res.status(400).send({status:false,msg:'enter the billing address city'})
     if(!isValid(address.billing.street)) return res.status(400).send({status:false,msg:'enter the billing address street'})
     if(!address.billing.pincode) return res.status(400).send({status:false,msg:'enter the billing address pincode'})
-    if (!/^(\d{4}|\d{6})$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing"});
+    if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing"});
 
     data.address = address;
   
@@ -185,6 +185,7 @@ const updateUser = async function (req,res){
     }
 
     if(password){
+        if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: "Password length should be 8 to 15" });
         let user = await userModel.findById(req.userId);
         // check if passsword is same as previous one 
         let same = bcrypt.compareSync(password, user.password);
@@ -211,7 +212,7 @@ const updateUser = async function (req,res){
                 var shippingStreet = address.shipping.street;
             }
             if(address.shipping.pincode){
-                if (!/^(\d{4}|\d{6})$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",});
+                if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for shipping",});
                 var shippingPincode = address.shipping.pincode;
             }
             
@@ -226,7 +227,7 @@ const updateUser = async function (req,res){
                 var billingStreet = address.billing.street;
             }
             if(address.billing.pincode){
-                if (!/^(\d{4}|\d{6})$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing",});
+                if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) return res.status(400).send({status: false,message: "Please enter valid Pincode for billing",});
                 var billingPincode = address.billing.pincode;
             }
         }

@@ -23,7 +23,7 @@ const addItems = async function(req,res){ // INPUT => {id:productId}
         // check if cart is present
         // Now fiding the cart
 
-        let cart = await cartModel.findOne({userId : req.params.userId}).lean()
+        let cart = await cartModel.findOne({userId : req.params.userId})
 
         if(cart){ // if cart is already there
             let index = cart.items.findIndex(el => el.productId == productId) // -1 or index
@@ -81,7 +81,7 @@ const removeItems = async function(req,res){
 
 
         //  we can use a findOndex function...
-        let cartWithProduct = await cartModel.findOne({userId : req.params.userId, items:{$elemMatch : {productId : productId}}}).lean()
+        let cartWithProduct = await cartModel.findOne({userId : req.params.userId, items:{$elemMatch : {productId : productId}}})
         if(!cartWithProduct) return res.status(404).send({status:false,msg:'not able to find the product in the cart'})
 
         if(removeProduct != 1 && removeProduct !=0) return res.status(400).send({status:false,msg:'removeProduct should be 1 or 0 only'})
