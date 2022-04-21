@@ -35,7 +35,7 @@ const addItems = async function(req,res){ // INPUT => {id:productId}
             // total itmes => number of product objects in item array
             //if product  is not present in the cart.items
             // $addToSet => add a element in the array
-            let products = {productId:productId,quantity:1}
+            let products = {productId:productId,quantity:1} // $addToSet or $push
             let updatedCart = await cartModel.findOneAndUpdate({userId : req.params.userId},{$addToSet: {items :products},$inc:{totalItems:1,totalPrice:product.price}},{new:true})
             return res.status(200).send({status:true,msg:'product is added', data : updatedCart})
 
@@ -56,6 +56,9 @@ const addItems = async function(req,res){ // INPUT => {id:productId}
         return res.status(500).send({status:false,msg:error.message})
     }
 }
+
+// 
+
 
 const removeItems = async function(req,res){
     try{
