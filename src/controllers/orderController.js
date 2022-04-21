@@ -6,10 +6,10 @@ const ObjectId = require('mongoose').Types.ObjectId
 const createOrder = async function(req,res){ // input cancelable and status
     try{
         // validation of Objectid in params
-        if(!ObjectId.isValid(req.params.userId)) return res.status(400).send({status:false,msg:'enter a valid objectId in params'})
+        if(!ObjectId.isValid(req.params.userId)) return res.status(400).send({status:false,msg:'enter a valid usrId in params'})
         // check authorisation of the user
         if(req.userId != req.params.userId) return res.status(403).send({status:false,msg:'you are not authorized'})
-
+        //found user
         let user = await userModel.findById(req.params.userId);
         // !  status code doubt
         if(!user) return res.status(404).send({status:false,msg:'no user found'}) 

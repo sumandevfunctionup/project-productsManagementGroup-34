@@ -87,7 +87,7 @@ const removeItems = async function(req,res){
         if(removeProduct != 1 && removeProduct !=0) return res.status(400).send({status:false,msg:'removeProduct should be 1 or 0 only'})
 
         
-        let index = cart.items.findIndex(el => el.productId == productId);
+        let index = cart.items.findIndex(el => el.productId == productId); //el index
         let quantity = cart.items[index].quantity;
         if(removeProduct == 0){ // remove the comlpete object (removeProduct == 0)
             let updatedCart = await cartModel.findOneAndUpdate({userId : req.params.userId, items:{$elemMatch : {productId : productId}}},{$pull : {items:{productId:productId}},$inc:{totalItems:-1,totalPrice:-quantity*product.price}},{new:true})
