@@ -22,6 +22,7 @@ const createOrder = async function(req,res){ // input cancelable and status
         let totalQuantity = 0;
         // can use forEach, for loop also
         data.items.map(item => totalQuantity += item.quantity)
+        data.totalQuantity = totalQuantity;
         }
         if(data.cancellable){
             if(![true,false].includes(data.cancellable)) return res.status(400).send({status:false,msg:'enter cancellable in proper format'})

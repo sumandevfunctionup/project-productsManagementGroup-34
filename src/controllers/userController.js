@@ -103,7 +103,7 @@ const login = async function (req, res) {
     if (password.length < 8 || password.length > 15) return res.status(400).send({ status: false, msg: "Password length should be 8 to 15" });
 
     let user = await userModel.findOne({ email: email });
-    if (!user)return res.status(400).send({ status: false, msg: "emailId is not correct" });
+    if (!user)return res.status(404).send({ status: false, msg: "unable to find email ID in the collection" });
 
     let rightPwd = bcrypt.compareSync(password, user.password);
     if (!rightPwd) return res.status(400).send({ status: false, msg: "password is incorrect" });

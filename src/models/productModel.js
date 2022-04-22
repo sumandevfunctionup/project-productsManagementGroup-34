@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
         style: {type:String},
         availableSizes: {type:[]},
         installments: {type:Number},
-        deletedAt: {type:String}, 
+        deletedAt: {type:Date}, 
         isDeleted: {type:Boolean, default: false}
 }, {timestamps: true})
 

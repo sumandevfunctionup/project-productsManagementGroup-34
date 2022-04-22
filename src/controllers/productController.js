@@ -46,9 +46,10 @@ try{
     if(Number(price) <= 0) return res.status(400).send({status:false,msg:'price is not valid'})
     data.price = Number(price);
 
-    if(typeof(availableSizes) == 'string') data.availableSizes = JSON.parse(availableSizes)
+    // avaiable Sizes => array of strings
     if(availableSizes.length == 0) return res.status(400).send({status:false,msg: 'available size cannot be empty'})
-    for(let size of data.availableSizes){
+    if(typeof(availableSizes) == 'string') data.availableSizes = JSON.parse(availableSizes)
+    for(let size of data.availableSizes){ // size => arr[i]
         if(!["XS", "X", "S", "M", "L", "XL", "XXL"].includes(size)) return res.status(400).send({status:false,msg:'wrong size parameter is given'})
     }
 
@@ -92,8 +93,8 @@ const getProducts = async function(req,res){
     try{
         let filterCondn = {isDeleted:false};
         let query = req.query;
-        let {name,size,priceGreaterThan, priceLessThan, priceSorting} = query;
-        if(Object.keys(req.query).length >0){ // Size
+        let {name,size,priceGreaterThan, priceLessThan, priceSort} = query;
+        if(Object.keys(req.query).length >0){ 
             if(name){
                 if(!isValid(name)) return res.status(400).send({status:false,msg:'enter the valid name in filter condition'})
                 const regexName = new RegExp(name,"i")
@@ -123,9 +124,9 @@ const getProducts = async function(req,res){
                 filterCondn.price = {$lte:priceLessThan};
             }
 
-            if(priceSorting){
-                if(![-1,1].includes(Number(priceSorting))) return res.status(400).send({status:false,msg:'price sorting is not valid'})
-                let products = await productModel.find(filterCondn).sort({price:priceSorting})
+            if(priceSort){
+                if(![-1,1].includes(Number(priceSort))) return res.status(400).send({status:false,msg:'price sort is not valid'})
+                let products = await productModel.find(filterCondn).sort({price:priceSort})
                 if(!products) return res.status(404).send({status:false,msg:'No product found'})
                 return res.status(200).send({status:true,msg:"Product list", data : products});
             }
